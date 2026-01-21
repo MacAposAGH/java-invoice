@@ -5,7 +5,6 @@ import pl.edu.agh.mwo.invoice.product.Product;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 public class Invoice {
     HashMap<Product, Integer> products = new HashMap<>();
@@ -24,7 +23,7 @@ public class Invoice {
         products.put(product, quantity);
     }
 
-    private BigDecimal reducePrice(Function<Product, BigDecimal> extractPrice ){
+    private BigDecimal reducePrice(Function<Product, BigDecimal> extractPrice) {
         return products.keySet().stream()
                 .map(p -> extractPrice.apply(p)
                         .multiply(BigDecimal.valueOf(products.get(p))))
