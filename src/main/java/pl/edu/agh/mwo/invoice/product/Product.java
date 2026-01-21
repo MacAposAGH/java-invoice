@@ -11,10 +11,10 @@ public abstract class Product {
 
     protected Product(String name, BigDecimal price, BigDecimal tax) {
         if (name == null || name.isEmpty() ) {
-            throw new IllegalArgumentException("Name can't be null nor empty!");
+            throw new IllegalArgumentException("Name can't be null or empty!");
         }
         if (price == null || price.signum() < 0) {
-            throw new IllegalArgumentException("Price can't be null nor negative!");
+            throw new IllegalArgumentException("Price can't be null or negative!");
         }
 
         this.name = name;
