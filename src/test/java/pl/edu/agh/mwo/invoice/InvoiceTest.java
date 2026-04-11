@@ -10,6 +10,7 @@ import pl.edu.agh.mwo.invoice.product.Product;
 import pl.edu.agh.mwo.invoice.product.TaxFreeProduct;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 public class InvoiceTest {
     private Invoice invoice;
@@ -17,6 +18,23 @@ public class InvoiceTest {
     @Before
     public void createEmptyInvoiceForTheTest() {
         invoice = new Invoice();
+    }
+
+    @Test
+    public void shouldCreateUniqueNumberForEachInvoice(){
+        Invoice sceondInvoice = new Invoice();
+        UUID firstNumber = invoice.getNumber();
+        UUID secondNumber = sceondInvoice.getNumber();
+        Assert.assertNotEquals(firstNumber, secondNumber);
+    }
+
+    @Test
+    public void shouldPrintProducts(){
+        invoice.addProduct(new TaxFreeProduct("Mąka", new BigDecimal("200")));
+        invoice.addProduct(new DairyProduct("Jajka", new BigDecimal("100")));
+        invoice.addProduct(new OtherProduct("Mleko", new BigDecimal("10")));
+
+
     }
 
     @Test
