@@ -1,27 +1,36 @@
 package pl.edu.agh.mwo.invoice;
 
-import pl.edu.agh.mwo.invoice.product.ExciseProducts;
 import pl.edu.agh.mwo.invoice.product.Product;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
-import java.util.UUID;
 import java.util.function.Function;
 
 public class Invoice {
-    private static final Random r = new Random();
+    private static final Random RANDOM = new Random();
 
-    UUID number = UUID.randomUUID();
+    private final int number;
     HashMap<Product, Integer> products = new HashMap<>();
 
-    public String print(){
+    public Invoice() {
+        int origin = (int) Math.pow(10, 5);
+        this.number = RANDOM.nextInt(origin, origin * 10);
+    }
+
+    public ArrayList<String> getInvoiceText() {
         return null;
+    }
+
+    public void print() {
+        System.out.println(String.join("\n", getInvoiceText()));
     }
 
     public void addProduct(Product product) {
         addProduct(product, 1);
     }
+
     public void addProduct(Product product, Integer quantity) {
         if (product == null) {
             throw new IllegalArgumentException("Product can't be null!");
@@ -39,8 +48,12 @@ public class Invoice {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public UUID getNumber() {
+    public int getNumber() {
         return number;
+    }
+
+    public HashMap<Product, Integer> getProducts() {
+        return products;
     }
 
     public BigDecimal getSubtotal() {
