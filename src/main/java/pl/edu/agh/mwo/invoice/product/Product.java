@@ -35,6 +35,7 @@ public abstract class Product {
     }
 
     public BigDecimal getPriceWithTax() {
-        return price.multiply(taxPercent.add(BigDecimal.ONE));
+        BigDecimal priceWithTax = this instanceof ExciseProduct product ? price.add(product.excisePrice) : price;
+        return priceWithTax.multiply(taxPercent.add(BigDecimal.ONE));
     }
 }

@@ -3,10 +3,7 @@ package pl.edu.agh.mwo.invoice;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
-import pl.edu.agh.mwo.invoice.product.DairyProduct;
-import pl.edu.agh.mwo.invoice.product.OtherProduct;
-import pl.edu.agh.mwo.invoice.product.Product;
-import pl.edu.agh.mwo.invoice.product.TaxFreeProduct;
+import pl.edu.agh.mwo.invoice.product.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -40,15 +37,16 @@ public class InvoiceTest {
         invoice.addProduct(new DairyProduct("Jajka", new BigDecimal("200")));
         invoice.addProduct(new OtherProduct("Mleko", new BigDecimal("300")));
         ArrayList<String> invoiceText = invoice.getInvoiceText();
+        invoice.print();
         assertEquals(6, invoiceText.size());
-        assertTrue("\\d*".matches(invoiceText.get(0)));
-        assertTrue("Name\\w*Number of items\\w*Price".matches(invoiceText.get(1)));
+        assertTrue(invoiceText.get(0).matches("\\d+"));
+        assertTrue(invoiceText.get(1).matches("Nazwa\\s+Liczba sztuk\\s+Cena\\s+"));
         assertEquals("Liczba pozycji: 3", invoiceText.get(5));
     }
 
     @Test
     public void testInvoicesQuantityWithDuplicatedProducts() {
-        Product product = new OtherProduct( "Mąka", new BigDecimal("100"));
+        Product product = new OtherProduct("Mąka", new BigDecimal("100"));
         invoice.addProduct(product);
         invoice.addProduct(product);
         assertEquals(Integer.valueOf(2), invoice.getProducts().get(product));
@@ -56,12 +54,44 @@ public class InvoiceTest {
 
     @Test
     public void testInvoicesQuantityWithProductsOfDifferentTypeAndSameName() {
-        Product firstProduct = new DairyProduct( "Mleczko", new BigDecimal("100")); // mleczko do picia
-        Product secondProduct = new OtherProduct( "Mleczko", new BigDecimal("100")); // mleczko do butów
+        Product firstProduct = new DairyProduct("Mleczko", new BigDecimal("100")); // mleczko do picia
+        Product secondProduct = new OtherProduct("Mleczko", new BigDecimal("100")); // mleczko do butów
         invoice.addProduct(firstProduct);
         invoice.addProduct(secondProduct);
         assertEquals(Integer.valueOf(1), invoice.getProducts().get(firstProduct));
         assertEquals(Integer.valueOf(1), invoice.getProducts().get(secondProduct));
+    }
+
+    @Test
+    public void testInvoicesSubtotalWithExciseProducts() {
+        BottleOfWine firstProduct = new BottleOfWine("Château Leroy", BigDecimal.valueOf(100));
+        BottleOfWine secondProduct = new BottleOfWine("Amarena", BigDecimal.valueOf(100));
+        FuelCanister thirdProduct = new FuelCanister("Pb95", BigDecimal.valueOf(100), BigDecimal.valueOf(5.56));
+        FuelCanister fourthProduct = new FuelCanister("Diesel", BigDecimal.valueOf(100), BigDecimal.valueOf(5.56));
+        invoice.addProduct(firstProduct);
+        invoice.addProduct(secondProduct);
+        invoice.addProduct(thirdProduct);
+        invoice.addProduct(fourthProduct);
+        assertEquals(new BigDecimal("400"), invoice.getSubtotal());
+    }
+
+    @Test
+    public void testInvoicesTotalWithExciseProducts() {
+        BottleOfWine firstProduct = new BottleOfWine("Amarena", BigDecimal.valueOf(94.44));
+        FuelCanister secondProduct = new FuelCanister("Diesel", BigDecimal.valueOf(94.44), BigDecimal.valueOf(5.56));
+        invoice.addProduct(firstProduct);
+        invoice.addProduct(secondProduct);
+        assertThat(new BigDecimal("231"), Matchers.comparesEqualTo(invoice.getTotal()));
+    }
+
+//    po zniesieniu podatku
+    @Test
+    public void testInvoicesTotalWithoutExciseForProducts() {
+        FuelCanister firstProduct = new FuelCanister("Pb95", BigDecimal.valueOf(100));
+        FuelCanister secondProduct = new FuelCanister("Diesel", BigDecimal.valueOf(100));
+        invoice.addProduct(firstProduct);
+        invoice.addProduct(secondProduct);
+        assertThat(new BigDecimal("216"), Matchers.comparesEqualTo(invoice.getTotal()));
     }
 
     @Test

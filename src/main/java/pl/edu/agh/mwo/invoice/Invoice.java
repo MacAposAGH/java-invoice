@@ -5,6 +5,7 @@ import pl.edu.agh.mwo.invoice.product.Product;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
 
@@ -20,7 +21,17 @@ public class Invoice {
     }
 
     public ArrayList<String> getInvoiceText() {
-        return null;
+        if (products.isEmpty()) {
+            throw new IllegalStateException("Invoice has no products.");
+        }
+        String s = "%-10s %-15s %-10s";
+        ArrayList<String> arrayList = new ArrayList<>(List.of(
+                String.valueOf(number),
+                s.formatted("Nazwa", "Liczba sztuk", "Cena")
+        ));
+        products.forEach((k, v) -> arrayList.add(s.formatted(k.getName(), v, k.getPrice())));
+        arrayList.add("Liczba pozycji: %s".formatted(products.values().stream().reduce(0, Integer::sum)));
+        return arrayList;
     }
 
     public void print() {
@@ -43,8 +54,7 @@ public class Invoice {
 
     private BigDecimal reducePrice(Function<Product, BigDecimal> extractPrice) {
         return products.keySet().stream()
-                .map(p -> extractPrice.apply(p)
-                        .multiply(BigDecimal.valueOf(products.get(p))))
+                .map(p -> extractPrice.apply(p).multiply(BigDecimal.valueOf(products.get(p))))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
@@ -65,10 +75,6 @@ public class Invoice {
     }
 
     public BigDecimal getTotal() {
-        return reducePrice(Product::getPriceWithTax);
-    }
-
-    public BigDecimal getExcise() {
         return reducePrice(Product::getPriceWithTax);
     }
 }
